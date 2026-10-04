@@ -1,0 +1,161 @@
+.devBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--sky-soft);
+  color: var(--sky);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.devBanner strong {
+  font-size: var(--text-sm);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.card {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-4);
+  border-bottom: 1.5px solid var(--border);
+}
+
+.merchantLogo {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.merchantLogo span {
+  color: var(--pitch);
+}
+
+.amountBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.amountLabel {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.amountValue {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--pitch-strong);
+}
+
+.tranMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  background: var(--surface-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.methodSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionLabel {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.methodGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.methodCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  transition: all var(--dur) var(--ease-out);
+}
+
+.methodCard:hover {
+  border-color: var(--pitch);
+}
+
+.methodActive {
+  border-color: var(--pitch);
+  background: var(--pitch-soft);
+  color: var(--pitch-ink);
+}
+
+.bkashIcon {
+  color: #e2136e;
+}
+
+.nagadIcon {
+  color: #f7931e;
+}
+
+.cardIcon {
+  color: var(--sky);
+}
+
+.inputBox {
+  background: var(--surface-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.inputLabel {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.secondaryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}

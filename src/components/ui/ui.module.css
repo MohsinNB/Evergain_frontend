@@ -1,0 +1,192 @@
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.padded {
+  padding: var(--space-5);
+}
+
+.interactive {
+  transition:
+    transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
+}
+
+.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* ── Badge ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.badge_pitch {
+  background: var(--pitch-soft);
+  color: var(--pitch-ink);
+}
+
+.badge_sun {
+  background: var(--sun);
+  color: #422006;
+}
+
+.badge_sky {
+  background: var(--sky-soft);
+  color: var(--sky);
+}
+
+.badge_berry {
+  background: var(--berry-soft);
+  color: var(--berry);
+}
+
+.badge_kick {
+  background: var(--kick-soft);
+  color: var(--kick-strong);
+}
+
+.badge_neutral {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+/* ── Status pill ── */
+.status {
+  --c: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.statusDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.status_PENDING {
+  --c: var(--status-pending);
+}
+
+.status_PENDING .statusDot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.status_BOOKED {
+  --c: var(--status-booked);
+}
+
+.status_CANCELLED {
+  --c: var(--status-cancelled);
+}
+
+.status_EXPIRED {
+  --c: var(--status-expired);
+}
+
+.status_NO_SHOW {
+  --c: var(--status-no-show);
+}
+
+/* ── Skeleton ── */
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    color-mix(in srgb, var(--surface-2) 40%, var(--surface)) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-5);
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--pitch-soft);
+  color: var(--pitch);
+}
+
+.emptyIcon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.emptyTitle {
+  font-size: var(--text-lg);
+}
+
+.emptyText {
+  max-width: 34ch;
+  color: var(--muted);
+}
+
+/* ── Page header ── */
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-block: var(--space-5) var(--space-4);
+}
+
+.pageTitle {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+  margin-top: var(--space-1);
+  color: var(--muted);
+}
+
+.pageActions {
+  display: flex;
+  gap: var(--space-2);
+}

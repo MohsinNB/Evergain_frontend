@@ -1,0 +1,244 @@
+/* Sticky Bottom Bar */
+.bottomBar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  z-index: 35;
+  border-top: 1.5px solid var(--pitch-soft);
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.12);
+}
+
+@media (min-width: 900px) {
+  .bottomBar {
+    bottom: 0;
+  }
+}
+
+.barInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+}
+
+.summaryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--orange-600);
+}
+
+.summaryMeta {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.summaryPrice {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--pitch-strong);
+}
+
+.barActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.clearBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.clearBtn:hover {
+  color: var(--berry);
+  background: var(--berry-soft);
+}
+
+/* Modal Overlay & Sheet */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(15 23 42 / 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .modalOverlay {
+    align-items: center;
+    padding: var(--space-4);
+  }
+}
+
+.sheet {
+  width: 100%;
+  max-width: 500px;
+  background: var(--surface);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    border-radius: var(--radius-xl);
+  }
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.sheetTitle {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.sheetSubtitle {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.closeBtn:hover {
+  background: var(--border);
+}
+
+/* Ticket summary card */
+.ticketCard {
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ticketRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ticketLabel {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pitch-strong);
+}
+
+.ticketTime {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.ticketPrice {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--pitch-strong);
+}
+
+.holdNotice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--pitch-ink);
+  background: var(--pitch-soft);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: var(--text-base);
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--pitch);
+  box-shadow: 0 0 0 3px var(--pitch-soft);
+}
+
+.inputError {
+  border-color: var(--berry);
+}
+
+.errorMsg {
+  font-size: var(--text-xs);
+  color: var(--berry);
+  font-weight: 600;
+}
+
+.guaranteeNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  line-height: 1.4;
+}

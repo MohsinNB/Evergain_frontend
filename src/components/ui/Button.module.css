@@ -1,0 +1,113 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-full);
+  border: 1.5px solid transparent;
+  font-weight: 600;
+  font-size: var(--text-base);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.sm {
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.md {
+  min-height: var(--tap-min);
+}
+
+.lg {
+  min-height: 54px;
+  padding: 0 var(--space-6);
+  font-size: var(--text-lg);
+}
+
+.block {
+  display: flex;
+  width: 100%;
+}
+
+/* Variants */
+.cta {
+  color: #fff;
+  background: linear-gradient(135deg, var(--orange-400), var(--orange-600));
+  box-shadow: var(--shadow-kick);
+}
+
+.cta:hover:not(:disabled) {
+  box-shadow: 0 10px 28px rgb(249 115 22 / 0.45);
+  transform: translateY(-1px);
+}
+
+.primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--green-500), var(--green-700));
+  box-shadow: var(--shadow-pitch);
+}
+
+.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.secondary {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--pitch);
+  color: var(--pitch-strong);
+}
+
+.ghost {
+  color: var(--ink-2);
+  background: transparent;
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.danger {
+  color: #fff;
+  background: var(--berry);
+}
+
+.danger:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.spinner {
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
