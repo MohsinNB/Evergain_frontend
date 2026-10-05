@@ -1,6 +1,6 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Plus, Trash2, CalendarOff, ShieldAlert, CheckCircle2, MapPin, X } from 'lucide-react';
+import { Save, Plus, Trash2, CalendarOff, ShieldAlert, CheckCircle2, MapPin, X, RefreshCw } from 'lucide-react';
 import { useAdminAuth } from '../../admin-auth/context/AdminAuthContext';
 import { Button } from '@/components/ui/Button';
 import { Card, Skeleton, Badge } from '@/components/ui/primitives';
@@ -34,9 +34,11 @@ export function AdminSettingsPage() {
   const [newGroundPrice, setNewGroundPrice] = useState(1000);
   const [addError, setAddError] = useState('');
 
-  const { data: grounds = [], isLoading } = useQuery({
+  const { data: grounds = [], isLoading, refetch } = useQuery({
     queryKey: ['ground-settings'],
     queryFn: getGroundSettingsData,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const activeGround = grounds[selectedGroundIndex] || grounds[0];
@@ -53,6 +55,17 @@ export function AdminSettingsPage() {
         isActive: activeGround.isActive,
       });
       setClosures(activeGround.closures || []);
+    } else {
+      setSettingsForm({
+        name: 'Evergain Avenue — Main Pitch',
+        location: 'Block C, Bashundhara R/A, Dhaka',
+        openingTime: '06:00',
+        closingTime: '24:00',
+        slotDurationMinutes: 60,
+        pricePerSlot: 1000,
+        isActive: true,
+      });
+      setClosures([]);
     }
   }, [activeGround]);
 
@@ -73,12 +86,13 @@ export function AdminSettingsPage() {
     onSuccess: (newGround) => {
       queryClient.invalidateQueries({ queryKey: ['ground-settings'] });
       setShowAddModal(false);
-      setSuccessMsg(`Ground "${newGround.name}" created successfully!`);
-      setSelectedGroundIndex(grounds.length); // Switch to newly created ground
+      setSuccessMsg(`Ground "${newGround.name}" saved successfully!`);
+      setSelectedGroundIndex(0);
+      refetch();
       setTimeout(() => setSuccessMsg(''), 4000);
     },
     onError: (err: any) => {
-      setAddError(err?.message || 'Failed to create ground.');
+      setAddError(err?.message || 'Failed to save ground.');
     },
   });
 
@@ -95,10 +109,21 @@ export function AdminSettingsPage() {
 
   const handleSave = (e: FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate({
-      ...settingsForm,
-      closures,
-    });
+    if (activeGround?._id) {
+      updateMutation.mutate({
+        ...settingsForm,
+        closures,
+      });
+    } else {
+      createMutation.mutate({
+        name: settingsForm.name || 'Evergain Avenue — Main Pitch',
+        location: settingsForm.location || 'Block C, Bashundhara R/A, Dhaka',
+        openingTime: settingsForm.openingTime || '06:00',
+        closingTime: settingsForm.closingTime || '24:00',
+        slotDurationMinutes: Number(settingsForm.slotDurationMinutes || 60),
+        pricePerSlot: Number(settingsForm.pricePerSlot || 1000),
+      });
+    }
   };
 
   const handleCreateGroundSubmit = (e: FormEvent) => {
@@ -139,6 +164,14 @@ export function AdminSettingsPage() {
             <Button
               variant="secondary"
               size="md"
+              iconLeft={<RefreshCw size={14} />}
+              onClick={() => refetch()}
+            >
+              Reload
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
               iconLeft={<Plus size={16} />}
               onClick={() => {
                 setAddError('');
@@ -151,7 +184,7 @@ export function AdminSettingsPage() {
               variant="primary"
               size="md"
               iconLeft={<Save size={16} />}
-              loading={updateMutation.isPending}
+              loading={updateMutation.isPending || createMutation.isPending}
               onClick={handleSave}
             >
               Save All Settings
@@ -161,7 +194,7 @@ export function AdminSettingsPage() {
       </div>
 
       {/* Ground Selector Tabs */}
-      {grounds.length > 0 && (
+      {grounds.length > 1 && (
         <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-6)', overflowX: 'auto', paddingBottom: '4px' }}>
           {grounds.map((g, idx) => (
             <button
@@ -206,168 +239,160 @@ export function AdminSettingsPage() {
         </div>
       )}
 
-      {activeGround ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-          {/* Core Settings Card */}
-          <Card className={styles.card}>
-            <h3 style={{ margin: '0 0 var(--space-4) 0', fontSize: 'var(--font-size-xl)', fontWeight: 700 }}>
-              Ground Configuration — {activeGround.name}
-            </h3>
-
-            <form onSubmit={handleSave} className={styles.formGrid}>
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Ground Name
-                </label>
-                <input
-                  type="text"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.name || ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, name: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Location Address
-                </label>
-                <input
-                  type="text"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.location || ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, location: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Opening Time (24h)
-                </label>
-                <input
-                  type="text"
-                  placeholder="06:00"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.openingTime || ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, openingTime: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Closing Time (24h)
-                </label>
-                <input
-                  type="text"
-                  placeholder="24:00"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.closingTime || ''}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, closingTime: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Slot Duration (Minutes)
-                </label>
-                <input
-                  type="number"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.slotDurationMinutes || 60}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, slotDurationMinutes: Number(e.target.value) })}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                  Base Price Per Slot (৳)
-                </label>
-                <input
-                  type="number"
-                  className={styles.searchInput}
-                  disabled={!isSuperAdmin}
-                  value={settingsForm.pricePerSlot || 0}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, pricePerSlot: Number(e.target.value) })}
-                />
-              </div>
-            </form>
-          </Card>
-
-          {/* Holiday / Maintenance Closures Card */}
-          <Card className={styles.card}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-              <h3 style={{ margin: 0, fontSize: 'var(--font-size-xl)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CalendarOff size={20} /> Ground Closures & Maintenance
-              </h3>
-              <Badge tone="neutral">{closures.length} Dates Blocked</Badge>
-            </div>
-
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-4)' }}>
-              Blocked dates will show as unavailable for customer bookings (holidays, turf repairs, special events).
-            </p>
-
-            {isSuperAdmin && (
-              <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
-                <input
-                  type="date"
-                  className={styles.searchInput}
-                  style={{ width: '180px' }}
-                  value={newClosureDate}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setNewClosureDate(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Closure reason (e.g. Eid Holiday)"
-                  className={styles.searchInput}
-                  style={{ flex: 1, minWidth: '200px' }}
-                  value={newClosureReason}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setNewClosureReason(e.target.value)}
-                />
-                <Button type="button" variant="secondary" iconLeft={<Plus size={16} />} onClick={handleAddClosure}>
-                  Add Closure
-                </Button>
-              </div>
-            )}
-
-            <div className={styles.closureList}>
-              {closures.length === 0 ? (
-                <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', fontStyle: 'italic', margin: 0 }}>
-                  No active ground closures scheduled.
-                </p>
-              ) : (
-                closures.map((closure, index) => (
-                  <div key={index} className={styles.closureItem}>
-                    <div className={styles.closureInfo}>
-                      <span className={styles.closureDate}>{closure.date}</span>
-                      <span className={styles.closureReason}>{closure.reason}</span>
-                    </div>
-                    {isSuperAdmin && (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        iconLeft={<Trash2 size={14} />}
-                        onClick={() => handleRemoveClosure(index)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-        </div>
-      ) : (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        {/* Core Settings Card */}
         <Card className={styles.card}>
-          <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', margin: 0 }}>
-            No grounds registered in system. Click "Add New Ground" above to create one.
-          </p>
+          <h3 style={{ margin: '0 0 var(--space-4) 0', fontSize: 'var(--font-size-xl)', fontWeight: 700 }}>
+            Ground Configuration {activeGround ? `— ${activeGround.name}` : ''}
+          </h3>
+
+          <form onSubmit={handleSave} className={styles.formGrid}>
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Ground Name
+              </label>
+              <input
+                type="text"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.name || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Location Address
+              </label>
+              <input
+                type="text"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.location || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, location: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Opening Time (24h)
+              </label>
+              <input
+                type="text"
+                placeholder="06:00"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.openingTime || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, openingTime: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Closing Time (24h)
+              </label>
+              <input
+                type="text"
+                placeholder="24:00"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.closingTime || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, closingTime: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Slot Duration (Minutes)
+              </label>
+              <input
+                type="number"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.slotDurationMinutes || 60}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, slotDurationMinutes: Number(e.target.value) })}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Base Price Per Slot (৳)
+              </label>
+              <input
+                type="number"
+                className={styles.searchInput}
+                disabled={!isSuperAdmin}
+                value={settingsForm.pricePerSlot || 0}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsForm({ ...settingsForm, pricePerSlot: Number(e.target.value) })}
+              />
+            </div>
+          </form>
         </Card>
-      )}
+
+        {/* Holiday / Maintenance Closures Card */}
+        <Card className={styles.card}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+            <h3 style={{ margin: 0, fontSize: 'var(--font-size-xl)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CalendarOff size={20} /> Ground Closures & Maintenance
+            </h3>
+            <Badge tone="neutral">{closures.length} Dates Blocked</Badge>
+          </div>
+
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-4)' }}>
+            Blocked dates will show as unavailable for customer bookings (holidays, turf repairs, special events).
+          </p>
+
+          {isSuperAdmin && (
+            <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
+              <input
+                type="date"
+                className={styles.searchInput}
+                style={{ width: '180px' }}
+                value={newClosureDate}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setNewClosureDate(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Closure reason (e.g. Eid Holiday)"
+                className={styles.searchInput}
+                style={{ flex: 1, minWidth: '200px' }}
+                value={newClosureReason}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setNewClosureReason(e.target.value)}
+              />
+              <Button type="button" variant="secondary" iconLeft={<Plus size={16} />} onClick={handleAddClosure}>
+                Add Closure
+              </Button>
+            </div>
+          )}
+
+          <div className={styles.closureList}>
+            {closures.length === 0 ? (
+              <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', fontStyle: 'italic', margin: 0 }}>
+                No active ground closures scheduled.
+              </p>
+            ) : (
+              closures.map((closure, index) => (
+                <div key={index} className={styles.closureItem}>
+                  <div className={styles.closureInfo}>
+                    <span className={styles.closureDate}>{closure.date}</span>
+                    <span className={styles.closureReason}>{closure.reason}</span>
+                  </div>
+                  {isSuperAdmin && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      iconLeft={<Trash2 size={14} />}
+                      onClick={() => handleRemoveClosure(index)}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
 
       {/* Add New Ground Modal */}
       {showAddModal && (
