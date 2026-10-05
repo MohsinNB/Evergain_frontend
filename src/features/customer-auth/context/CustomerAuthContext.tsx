@@ -36,6 +36,9 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
 
   const handleLogin = async (input: CustomerLoginInput) => {
     const res = await customerLogin(input);
+    if (res.token) {
+      localStorage.setItem('customerToken', res.token);
+    }
     setCustomer(res.customer);
     queryClient.invalidateQueries({ queryKey: ['my-coupons'] });
     queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
@@ -45,6 +48,9 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignup = async (input: CustomerSignupInput) => {
     const res = await customerSignup(input);
+    if (res.token) {
+      localStorage.setItem('customerToken', res.token);
+    }
     setCustomer(res.customer);
     queryClient.invalidateQueries({ queryKey: ['my-coupons'] });
     queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
@@ -56,6 +62,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     try {
       await customerLogout();
     } finally {
+      localStorage.removeItem('customerToken');
       setCustomer(null);
       toast.info('Logged out successfully.');
     }

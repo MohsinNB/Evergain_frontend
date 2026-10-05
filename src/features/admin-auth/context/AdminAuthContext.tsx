@@ -34,6 +34,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const handleLogin = async (input: AdminLoginInput) => {
     const res = await adminLogin(input);
+    if (res.token) {
+      localStorage.setItem('adminToken', res.token);
+    }
     setAdmin(res.admin);
     toast.success(`Welcome to Admin Panel, ${res.admin.name}!`);
   };
@@ -42,6 +45,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     try {
       await adminLogout();
     } finally {
+      localStorage.removeItem('adminToken');
       setAdmin(null);
       toast.info('Admin logged out.');
     }

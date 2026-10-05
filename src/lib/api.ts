@@ -13,6 +13,17 @@ export const api = axios.create({
   headers: { Accept: 'application/json' },
 });
 
+api.interceptors.request.use((config) => {
+  const customerToken = localStorage.getItem('customerToken');
+  const adminToken = localStorage.getItem('adminToken');
+  const token = customerToken || adminToken;
+
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 /** Every backend endpoint responds with this shape. */
 export interface ApiResponse<T> {
   success: boolean;

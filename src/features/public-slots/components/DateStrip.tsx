@@ -8,7 +8,7 @@ interface DateStripProps {
   daysCount?: number;
 }
 
-export function DateStrip({ selectedDate, onSelectDate, daysCount = 14 }: DateStripProps) {
+export function DateStrip({ selectedDate, onSelectDate, daysCount = 30 }: DateStripProps) {
   const today = useMemo(() => todayInDhaka(), []);
   const dates = useMemo(() => nextDays(today, daysCount), [today, daysCount]);
 
