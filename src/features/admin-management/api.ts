@@ -91,3 +91,16 @@ export async function updateGroundSettingsData(id: string, data: Partial<GroundS
   const res = await api.patch(`/ground/settings/${id}`, data);
   return res.data.data;
 }
+
+/** Create a new ground (super admin) */
+export async function createGroundData(data: {
+  name: string;
+  location: string;
+  openingTime: string;
+  closingTime: string;
+  slotDurationMinutes: number;
+  pricePerSlot: number;
+}): Promise<GroundSettings> {
+  const res = await api.post('/ground', data);
+  return res.data.data;
+}
