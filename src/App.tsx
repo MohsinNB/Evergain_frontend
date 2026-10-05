@@ -12,50 +12,71 @@ import { BookingSuccessPage } from './features/payment-result/pages/BookingSucce
 import { BookingFailedPage } from './features/payment-result/pages/BookingFailedPage';
 import { BookingCancelledPage } from './features/payment-result/pages/BookingCancelledPage';
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="container" style={{ paddingTop: 'var(--space-8)' }}>
-      <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-2)' }}>{title}</h2>
-      <p className="muted">This page will be implemented in the upcoming phase.</p>
-    </div>
-  );
-}
+import { GalleryPage } from './features/gallery/pages/GalleryPage';
+
+import { CustomerAuthProvider } from './features/customer-auth/context/CustomerAuthContext';
+import { LoginPage } from './features/customer-auth/pages/LoginPage';
+import { SignupPage } from './features/customer-auth/pages/SignupPage';
+
+import { AccountPage } from './features/customer-account/pages/AccountPage';
+import { AdminAuthProvider } from './features/admin-auth/context/AdminAuthContext';
+import { AdminRouteGuard } from './features/admin-auth/components/AdminRouteGuard';
+import { AdminLoginPage } from './features/admin-auth/pages/AdminLoginPage';
+import { AdminDashboardPage } from './features/admin-dashboard/pages/AdminDashboardPage';
+import { AdminBookingsPage } from './features/admin-booking-management/pages/AdminBookingsPage';
+import { AdminManualBookingPage } from './features/admin-booking-management/pages/AdminManualBookingPage';
+import { AdminCalendarPage } from './features/admin-booking-management/pages/AdminCalendarPage';
+import { AdminGalleryPage } from './features/admin-gallery-management/pages/AdminGalleryPage';
+import { AdminAnalyticsPage } from './features/admin-management/pages/AdminAnalyticsPage';
+import { AdminAuditLogsPage } from './features/admin-management/pages/AdminAuditLogsPage';
+import { AdminCustomersPage } from './features/admin-management/pages/AdminCustomersPage';
+import { AdminUsersPage } from './features/admin-management/pages/AdminUsersPage';
+import { AdminSettingsPage } from './features/admin-management/pages/AdminSettingsPage';
+import { PermanentBookingPage } from './features/permanent-booking/pages/PermanentBookingPage';
+import { AdminPermanentBookingsPage } from './features/permanent-booking/pages/AdminPermanentBookingsPage';
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          {/* Public customer routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<SlotBookingPage />} />
-            <Route path="/gallery" element={<PlaceholderPage title="🖼 Photo & Video Gallery" />} />
-            <Route path="/plans" element={<PlaceholderPage title="📅 Permanent Booking Plans" />} />
-            <Route path="/account" element={<PlaceholderPage title="👤 My Account & Profile" />} />
-            <Route path="/login" element={<PlaceholderPage title="Customer Login" />} />
-            <Route path="/signup" element={<PlaceholderPage title="Customer Registration" />} />
-            <Route path="/booking/success" element={<BookingSuccessPage />} />
-            <Route path="/booking/failed" element={<BookingFailedPage />} />
-            <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
-            <Route path="/mock-checkout" element={<MockCheckoutPage />} />
-          </Route>
+      <AdminAuthProvider>
+        <CustomerAuthProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public customer routes */}
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<SlotBookingPage />} />
+                <Route path="/gallery" element={<GalleryPage />} />
+                <Route path="/plans" element={<PermanentBookingPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/booking/success" element={<BookingSuccessPage />} />
+                <Route path="/booking/failed" element={<BookingFailedPage />} />
+                <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
+                <Route path="/mock-checkout" element={<MockCheckoutPage />} />
+              </Route>
 
-          {/* Admin protected routes */}
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<PlaceholderPage title="📊 Admin Dashboard" />} />
-            <Route path="/admin/bookings" element={<PlaceholderPage title="📋 Bookings List" />} />
-            <Route path="/admin/calendar" element={<PlaceholderPage title="🗓 Calendar View" />} />
-            <Route path="/admin/permanent" element={<PlaceholderPage title="🔄 Permanent Plans" />} />
-            <Route path="/admin/gallery" element={<PlaceholderPage title="🖼 Gallery Management" />} />
-            <Route path="/admin/customers" element={<PlaceholderPage title="👥 Customers List" />} />
-            <Route path="/admin/analytics" element={<PlaceholderPage title="📈 Analytics & Reports" />} />
-            <Route path="/admin/audit-logs" element={<PlaceholderPage title="📜 System Audit Logs" />} />
-            <Route path="/admin/admins" element={<PlaceholderPage title="🛡 Admin Management" />} />
-            <Route path="/admin/settings" element={<PlaceholderPage title="⚙ Ground Settings" />} />
-          </Route>
-          <Route path="/admin/login" element={<PlaceholderPage title="Admin Login" />} />
-        </Routes>
-      </BrowserRouter>
+              {/* Admin protected routes */}
+              <Route element={<AdminRouteGuard />}>
+                <Route element={<AdminLayout />}>
+                  <Route path="/admin" element={<AdminDashboardPage />} />
+                  <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+                  <Route path="/admin/bookings/new" element={<AdminManualBookingPage />} />
+                  <Route path="/admin/calendar" element={<AdminCalendarPage />} />
+                  <Route path="/admin/permanent" element={<AdminPermanentBookingsPage />} />
+                  <Route path="/admin/gallery" element={<AdminGalleryPage />} />
+                  <Route path="/admin/customers" element={<AdminCustomersPage />} />
+                  <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+                  <Route path="/admin/audit-logs" element={<AdminAuditLogsPage />} />
+                  <Route path="/admin/admins" element={<AdminUsersPage />} />
+                  <Route path="/admin/settings" element={<AdminSettingsPage />} />
+                </Route>
+              </Route>
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+            </Routes>
+          </BrowserRouter>
+        </CustomerAuthProvider>
+      </AdminAuthProvider>
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
   );

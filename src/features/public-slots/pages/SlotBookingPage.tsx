@@ -49,7 +49,7 @@ export function SlotBookingPage() {
   };
 
   const availableSlotsCount = useMemo(() => {
-    return slotData?.slots.filter((s) => s.isAvailable).length ?? 0;
+    return slotData?.slots.filter((s) => s.status === 'available').length ?? 0;
   }, [slotData]);
 
   return (

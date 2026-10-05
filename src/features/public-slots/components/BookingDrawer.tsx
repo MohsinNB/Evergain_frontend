@@ -1,19 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { X, ShieldCheck, ArrowRight, Clock, AlertTriangle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { X, ShieldCheck, ArrowRight, Clock, AlertTriangle, Tag } from 'lucide-react';
 import { BD_PHONE_REGEX, formatTaka, formatTimeRange } from '@/lib/format';
 import { formatDateLong } from '@/lib/date';
 import { Button } from '@/components/ui/Button';
 import type { SlotView } from '../api';
 import { createBookingRequest } from '../api';
+import { useCustomerAuth } from '../../customer-auth/context/CustomerAuthContext';
+import { getCustomerCoupons } from '../../customer-account/api';
 import styles from './BookingDrawer.module.css';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name is too long'),
   phone: z.string().regex(BD_PHONE_REGEX, 'Enter a valid 11-digit BD number (e.g. 01712345678)'),
+  couponId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -28,15 +32,36 @@ interface BookingDrawerProps {
 export function BookingDrawer({ groundId, date, slot, onClearSlot }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { customer } = useCustomerAuth();
+
+  const { data: coupons } = useQuery({
+    queryKey: ['customer-coupons'],
+    queryFn: getCustomerCoupons,
+    enabled: Boolean(customer),
+  });
+
+  const unusedCoupons = coupons?.filter((c) => !c.isUsed) || [];
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', phone: '' },
+    defaultValues: {
+      name: customer?.name || '',
+      phone: customer?.phone || '',
+      couponId: '',
+    },
   });
+
+  useEffect(() => {
+    if (customer) {
+      if (customer.name) setValue('name', customer.name);
+      if (customer.phone) setValue('phone', customer.phone);
+    }
+  }, [customer, setValue]);
 
   if (!slot) return null;
 
@@ -53,10 +78,10 @@ export function BookingDrawer({ groundId, date, slot, onClearSlot }: BookingDraw
         startTime: slot.startTime,
         name: values.name,
         phone: values.phone,
+        couponId: values.couponId || undefined,
       });
 
       toast.success('Slot hold created! Redirecting to payment checkout...');
-      // Redirect to SSLCommerz / mock checkout page
       window.location.href = result.gatewayUrl;
     } catch (err: any) {
       setLoading(false);
@@ -174,6 +199,28 @@ export function BookingDrawer({ groundId, date, slot, onClearSlot }: BookingDraw
                 />
                 {errors.phone && <span className={styles.errorMsg}>{errors.phone.message}</span>}
               </div>
+
+              {/* Coupon Picker for logged in customers */}
+              {customer && unusedCoupons.length > 0 && (
+                <div className={styles.field}>
+                  <label htmlFor="customer-coupon" className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Tag size={14} style={{ color: 'var(--color-pitch-emerald)' }} /> Apply Discount Coupon
+                  </label>
+                  <select
+                    id="customer-coupon"
+                    className={styles.input}
+                    disabled={loading}
+                    {...register('couponId')}
+                  >
+                    <option value="">No coupon selected</option>
+                    {unusedCoupons.map((coupon) => (
+                      <option key={coupon._id} value={coupon._id}>
+                        {coupon.type === 'profile_completion' ? 'Profile Completion Reward (৳50 OFF)' : `Coupon (${coupon.amountValue} OFF)`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className={styles.guaranteeNote}>
                 <AlertTriangle size={15} />

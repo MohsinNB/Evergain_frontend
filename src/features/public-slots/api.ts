@@ -15,11 +15,10 @@ export interface Ground {
 export interface SlotView {
   startTime: string;
   endTime: string;
-  isAvailable: boolean;
+  status: 'available' | 'unavailable';
   originalPrice: number;
   price: number;
-  discountApplied: boolean;
-  discountAmount: number;
+  isDiscounted: boolean;
 }
 
 export interface SlotsResponse {

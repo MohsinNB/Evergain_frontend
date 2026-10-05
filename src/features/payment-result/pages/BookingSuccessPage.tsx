@@ -1,6 +1,6 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, Calendar, Clock, MapPin, User, Phone, Receipt, Gift, ArrowRight, PlusCircle } from 'lucide-react';
+import { CheckCircle2, Calendar, Clock, User, Phone, Receipt, Gift, ArrowRight, PlusCircle } from 'lucide-react';
 import { formatTaka, formatTimeRange } from '@/lib/format';
 import { formatDateLong } from '@/lib/date';
 import { Button } from '@/components/ui/Button';
@@ -115,21 +115,23 @@ export function BookingSuccessPage() {
             </div>
           </Card>
 
-          {/* Profile Completion Offer Banner */}
-          <div className={`${styles.offerCard} rise-in`}>
-            <div className={styles.offerHeader}>
-              <Gift size={24} className={styles.offerIcon} />
-              <div>
-                <h3 className={styles.offerTitle}>Get ৳50 OFF Your Next Booking!</h3>
-                <p className={styles.offerText}>
-                  Set up your password & email to claim your exclusive profile completion coupon.
-                </p>
+          {/* Profile Completion Offer Banner (Shown only if customer is not registered & hasn't received coupon) */}
+          {receipt.showProfileOffer && (
+            <div className={`${styles.offerCard} rise-in`}>
+              <div className={styles.offerHeader}>
+                <Gift size={24} className={styles.offerIcon} />
+                <div>
+                  <h3 className={styles.offerTitle}>Get ৳50 OFF Your Next Booking!</h3>
+                  <p className={styles.offerText}>
+                    Set up your password & email to claim your exclusive profile completion coupon.
+                  </p>
+                </div>
               </div>
+              <Link to={`/signup?phone=${encodeURIComponent(receipt.customerPhone)}`} className={styles.offerBtn}>
+                Claim ৳50 Discount <ArrowRight size={16} />
+              </Link>
             </div>
-            <Link to={`/signup?phone=${encodeURIComponent(receipt.customerPhone)}`} className={styles.offerBtn}>
-              Claim ৳50 Discount <ArrowRight size={16} />
-            </Link>
-          </div>
+          )}
         </>
       )}
 

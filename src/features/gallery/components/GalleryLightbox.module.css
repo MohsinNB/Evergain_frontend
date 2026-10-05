@@ -1,0 +1,116 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(2 6 23 / 0.92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: fade-in var(--dur) var(--ease-out);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  color: #fff;
+}
+
+.counter {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: #fff;
+  background: rgb(255 255 255 / 0.12);
+  transition: background-color var(--dur) var(--ease-out);
+}
+
+.closeBtn:hover {
+  background: rgb(255 255 255 / 0.25);
+}
+
+.mediaContainer {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-4);
+  max-height: calc(100vh - 120px);
+}
+
+.mediaFrame {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mediaImg {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.mediaVideo {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: var(--radius-md);
+  outline: none;
+}
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  color: #fff;
+  background: rgb(255 255 255 / 0.16);
+  backdrop-filter: blur(4px);
+  transition: all var(--dur) var(--ease-out);
+}
+
+.navBtn:hover {
+  background: rgb(255 255 255 / 0.3);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.prevBtn {
+  left: var(--space-4);
+}
+
+.nextBtn {
+  right: var(--space-4);
+}
+
+.captionBar {
+  padding: var(--space-4) var(--space-6);
+  text-align: center;
+  background: rgb(2 6 23 / 0.6);
+  color: #fff;
+}
+
+.captionText {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  max-width: 60ch;
+  margin-inline: auto;
+}

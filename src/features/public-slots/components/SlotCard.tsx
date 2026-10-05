@@ -11,8 +11,10 @@ interface SlotCardProps {
 }
 
 export function SlotCard({ slot, isSelected, onSelect }: SlotCardProps) {
-  const { startTime, endTime, isAvailable, price, originalPrice, discountApplied, discountAmount } = slot;
+  const { startTime, endTime, status, price, originalPrice, isDiscounted } = slot;
   const timeLabel = formatTimeRange(startTime, endTime);
+  const isAvailable = status === 'available';
+  const discountAmount = originalPrice - price;
 
   if (!isAvailable) {
     return (
@@ -31,7 +33,7 @@ export function SlotCard({ slot, isSelected, onSelect }: SlotCardProps) {
       onClick={() => onSelect(slot)}
       aria-pressed={isSelected}
     >
-      {discountApplied && (
+      {isDiscounted && discountAmount > 0 && (
         <div className={styles.discountBadge}>
           <Badge tone="sun" icon={<Tag size={12} />}>
             {formatTaka(discountAmount)} OFF
@@ -43,7 +45,7 @@ export function SlotCard({ slot, isSelected, onSelect }: SlotCardProps) {
         <span className={styles.time}>{timeLabel}</span>
         <div className={styles.priceRow}>
           <span className={styles.price}>{formatTaka(price)}</span>
-          {discountApplied && <span className={styles.oldPrice}>{formatTaka(originalPrice)}</span>}
+          {isDiscounted && <span className={styles.oldPrice}>{formatTaka(originalPrice)}</span>}
         </div>
       </div>
     </button>

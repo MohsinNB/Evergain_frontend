@@ -17,6 +17,7 @@ export interface PublicReceipt {
     tranId: string;
     paidAt?: string;
   };
+  showProfileOffer?: boolean;
 }
 
 /** Fetch public receipt by transaction ID or booking ID */

@@ -1,0 +1,340 @@
+/* Guest Card */
+.guestCard {
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.guestIcon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: var(--pitch-soft);
+  color: var(--pitch);
+}
+
+.guestTitle {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+.guestSubtitle {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  max-width: 36ch;
+}
+
+.guestActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* Profile Card */
+.profileCard {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-500), var(--green-700));
+  color: #fff;
+  font-size: var(--text-xl);
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-pitch);
+}
+
+.profileMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.profileName {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.contactRow span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.logoutBtn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  background: var(--surface-2);
+  transition: all var(--dur) var(--ease-out);
+}
+
+.logoutBtn:hover {
+  color: var(--berry);
+  background: var(--berry-soft);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.statValue {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--pitch-strong);
+}
+
+.statLabel {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Tabs */
+.tabNav {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 2px;
+  overflow-x: auto;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease-out);
+}
+
+.tabBtn:hover {
+  color: var(--ink);
+}
+
+.tabActive {
+  color: var(--pitch-strong);
+  border-bottom-color: var(--pitch);
+}
+
+/* Section stack */
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bookingCard {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bookingHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.groundName {
+  font-size: var(--text-base);
+  font-weight: 800;
+
+}
+
+.bookingTime {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.bookingFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border);
+}
+
+.bookingTran {
+  font-family: monospace;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.bookingPrice {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--pitch-strong);
+}
+
+/* Coupon Card */
+.couponCard {
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: linear-gradient(135deg, var(--surface), var(--sun-soft));
+  border: 1.5px solid var(--sun);
+}
+
+.couponUsed {
+  background: var(--surface-2);
+  border-color: var(--border);
+  opacity: 0.65;
+}
+
+.couponLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.couponBadgeIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--sun);
+  color: #422006;
+}
+
+.couponTitle {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.couponDesc {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Settings Form */
+.settingsCard {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.settingsTitle {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: var(--text-base);
+}
+
+.inputDisabled {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.fieldNote {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.errorMsg {
+  font-size: var(--text-xs);
+  color: var(--berry);
+  font-weight: 600;
+}

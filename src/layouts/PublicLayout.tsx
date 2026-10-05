@@ -1,5 +1,6 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import { ShieldCheck } from 'lucide-react';
 import { Logo, ThemeToggle } from '@/components/brand';
 import { PUBLIC_NAV } from './nav';
 import styles from './PublicLayout.module.css';
@@ -33,6 +34,10 @@ export function PublicLayout() {
                 {item.label}
               </NavLink>
             ))}
+            <Link to="/admin" className={styles.desktopLink} style={{ color: 'var(--color-pitch-emerald)', fontWeight: 700 }}>
+              <ShieldCheck size={18} aria-hidden="true" />
+              Admin
+            </Link>
           </nav>
           <ThemeToggle />
         </div>
