@@ -16,7 +16,18 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const customerToken = localStorage.getItem('customerToken');
   const adminToken = localStorage.getItem('adminToken');
-  const token = customerToken || adminToken;
+
+  const url = config.url || '';
+  const isAdminRoute =
+    url.includes('/admin') ||
+    url.includes('/ground') ||
+    url.includes('/calendar') ||
+    url.includes('/analytics') ||
+    url.includes('/audit-logs');
+
+  const token = isAdminRoute
+    ? (adminToken || customerToken)
+    : (customerToken || adminToken);
 
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;

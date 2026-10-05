@@ -71,11 +71,15 @@ export function AdminSettingsPage() {
 
   const updateMutation = useMutation({
     mutationFn: (data: Partial<GroundSettings>) => {
-      if (!activeGround?._id) throw new Error('No ground ID found');
-      return updateGroundSettingsData(activeGround._id, data);
+      const targetGroundId = activeGround?._id || grounds?.[0]?._id;
+      if (!targetGroundId) throw new Error('No ground ID found to update.');
+      return updateGroundSettingsData(targetGroundId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ground-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['public-grounds'] });
+      queryClient.invalidateQueries({ queryKey: ['public-slots'] });
+      queryClient.invalidateQueries({ queryKey: ['slots'] });
       setSuccessMsg('Ground settings and closures saved successfully!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
@@ -85,6 +89,9 @@ export function AdminSettingsPage() {
     mutationFn: createGroundData,
     onSuccess: (newGround) => {
       queryClient.invalidateQueries({ queryKey: ['ground-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['public-grounds'] });
+      queryClient.invalidateQueries({ queryKey: ['public-slots'] });
+      queryClient.invalidateQueries({ queryKey: ['slots'] });
       setShowAddModal(false);
       setSuccessMsg(`Ground "${newGround.name}" saved successfully!`);
       setSelectedGroundIndex(0);
@@ -109,9 +116,16 @@ export function AdminSettingsPage() {
 
   const handleSave = (e: FormEvent) => {
     e.preventDefault();
-    if (activeGround?._id) {
+    const targetGroundId = activeGround?._id || grounds?.[0]?._id;
+
+    if (targetGroundId) {
       updateMutation.mutate({
-        ...settingsForm,
+        name: settingsForm.name,
+        location: settingsForm.location,
+        openingTime: settingsForm.openingTime,
+        closingTime: settingsForm.closingTime,
+        slotDurationMinutes: settingsForm.slotDurationMinutes ? Number(settingsForm.slotDurationMinutes) : undefined,
+        pricePerSlot: settingsForm.pricePerSlot !== undefined ? Number(settingsForm.pricePerSlot) : undefined,
         closures,
       });
     } else {
