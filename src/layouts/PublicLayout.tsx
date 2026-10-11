@@ -34,7 +34,7 @@ export function PublicLayout() {
                 {item.label}
               </NavLink>
             ))}
-            <Link to="/admin" className={styles.desktopLink} style={{ color: 'var(--color-pitch-emerald)', fontWeight: 700 }}>
+            <Link to="/admin" className={styles.desktopLink} style={{ color: 'var(--pitch-strong)', fontWeight: 700 }}>
               <ShieldCheck size={18} aria-hidden="true" />
               Admin
             </Link>

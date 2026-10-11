@@ -2,12 +2,13 @@ import axios, { AxiosError } from 'axios';
 
 /**
  * Shared API client.
- * - Dev: relative `/api/v1` → proxied by Vite to http://localhost:5000 (same-origin cookies).
- * - Prod: set VITE_API_BASE_URL (e.g. https://api.evergainavenue.com/api/v1).
- * Auth is an httpOnly cookie, so we never store tokens in JS — just send credentials.
+ * Uses relative `/api/v1` as baseURL so all browser requests are same-origin.
+ * - In production: Vercel edge reverse proxy forwards `/api/*` to the Render backend,
+ *   completely hiding the Render backend URL from the browser Network tab.
+ * - In development: Vite dev server proxies `/api/*` to http://localhost:5000.
  */
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
+  baseURL: '/api/v1',
   withCredentials: true,
   timeout: 20_000,
   headers: { Accept: 'application/json' },
