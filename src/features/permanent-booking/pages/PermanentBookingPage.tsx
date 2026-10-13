@@ -312,7 +312,7 @@ export function PermanentBookingPage() {
 
                   <div className={styles.planMeta}>
                     <span>Starts: <strong>{plan.startDate}</strong></span>
-                    <span>Commitment: <strong>{plan.commitmentMonths} Months</strong></span>
+                    <span>Commitment: <strong>{plan.commitmentMonths} Months ({plan.totalMatches || 13} matches)</strong></span>
                     <span>
                       Discount:{' '}
                       <strong>
@@ -323,6 +323,20 @@ export function PermanentBookingPage() {
                           : 'Standard Rate'}
                       </strong>
                     </span>
+                    {plan.totalAmount ? (
+                      <span>Total Subscription Fee: <strong>৳{plan.totalAmount}</strong></span>
+                    ) : null}
+                    <div style={{ marginTop: 'var(--space-2)' }}>
+                      {plan.paymentStatus === 'paid' ? (
+                        <Badge tone="pitch" icon={<CheckCircle size={12} />}>
+                          Paid in Full · {plan.paymentMethod || 'Confirmed'}
+                        </Badge>
+                      ) : (
+                        <div style={{ background: 'var(--sun-soft)', color: 'var(--sun-ink)', padding: '6px 10px', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-xs)', border: '1px solid var(--border)', lineHeight: 1.4 }}>
+                          <strong>Payment Pending:</strong> Please pay ৳{plan.totalAmount || 'total'} via bKash or Cash to Admin to confirm full membership.
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {plan.status === 'active' && (

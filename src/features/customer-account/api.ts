@@ -33,8 +33,10 @@ export interface CustomerBookingHistoryItem {
   customerPhone: string;
   price: number;
   payment: {
+    method?: string;
     status: 'pending' | 'paid' | 'failed' | 'refunded';
     tranId: string;
+    cardType?: string;
     paidAt?: string;
   };
   createdAt: string;

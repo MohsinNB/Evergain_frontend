@@ -310,7 +310,18 @@ export function AccountPage() {
                       <StatusPill status={booking.status} />
                     </div>
                     <div className={styles.bookingFooter}>
-                      <span className={styles.bookingTran}>Ref: {booking.payment?.tranId || booking._id}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span className={styles.bookingTran}>Ref: {booking.payment?.tranId || booking._id}</span>
+                        {booking.payment?.status === 'paid' ? (
+                          <Badge tone="pitch" icon={<CheckCircle2 size={10} />}>
+                            Paid {booking.payment?.cardType ? `(${booking.payment.cardType})` : ''}
+                          </Badge>
+                        ) : booking.status === 'BOOKED' ? (
+                          <Badge tone="sun">
+                            Payment Pending
+                          </Badge>
+                        ) : null}
+                      </div>
                       <span className={styles.bookingPrice}>{formatTaka(booking.price)}</span>
                     </div>
                   </Card>

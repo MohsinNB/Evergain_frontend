@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, RefreshCw, CheckCircle, XCircle, Tag, X } from 'lucide-react';
+import { Calendar, RefreshCw, CheckCircle, XCircle, Tag, X, DollarSign } from 'lucide-react';
 import { formatTimeRange } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card, Skeleton, EmptyState, Badge } from '@/components/ui/primitives';
@@ -8,8 +8,10 @@ import {
   getAdminPermanentBookings,
   cancelPermanentBookingPlan,
   updatePermanentBookingDiscount,
+  markPermanentBookingPlanPaid,
   type PermanentBookingPlan,
   type PlanDiscountType,
+  type PermanentPaymentMethod,
 } from '../api';
 import styles from '../PermanentBooking.module.css';
 
@@ -19,6 +21,10 @@ export function AdminPermanentBookingsPage() {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [editingPlan, setEditingPlan] = useState<PermanentBookingPlan | null>(null);
+
+  const [payingPlan, setPayingPlan] = useState<PermanentBookingPlan | null>(null);
+  const [payMethod, setPayMethod] = useState<PermanentPaymentMethod>('BKASH');
+  const [payNotes, setPayNotes] = useState<string>('');
 
   const [discountType, setDiscountType] = useState<PlanDiscountType>('fixed');
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -44,6 +50,17 @@ export function AdminPermanentBookingsPage() {
     },
   });
 
+  const markPaidMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: { paymentMethod: PermanentPaymentMethod; paymentNotes?: string } }) =>
+      markPermanentBookingPlanPaid(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-permanent-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      setPayingPlan(null);
+      setPayNotes('');
+    },
+  });
+
   const handleOpenDiscountModal = (plan: PermanentBookingPlan) => {
     setEditingPlan(plan);
     setDiscountType(plan.discountType || 'fixed');
@@ -56,6 +73,18 @@ export function AdminPermanentBookingsPage() {
     discountMutation.mutate({
       id: editingPlan._id,
       input: { discountType, discountValue },
+    });
+  };
+
+  const handleMarkPaidSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!payingPlan) return;
+    markPaidMutation.mutate({
+      id: payingPlan._id,
+      input: {
+        paymentMethod: payMethod,
+        paymentNotes: payNotes.trim() || undefined,
+      },
     });
   };
 
@@ -119,6 +148,7 @@ export function AdminPermanentBookingsPage() {
                   <th>Slot Time</th>
                   <th>Start Date</th>
                   <th>Discount Rate</th>
+                  <th>Payment</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -126,11 +156,12 @@ export function AdminPermanentBookingsPage() {
               <tbody>
                 {plans.map((plan) => {
                   const customerObj = typeof plan.customerId === 'object' ? plan.customerId : null;
+                  const isPlanPaid = plan.paymentStatus === 'paid';
                   return (
                     <tr key={plan._id}>
                       <td>
                         <strong>{customerObj?.name || 'Customer'}</strong>
-                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
                           {customerObj?.phone || '-'}
                         </div>
                       </td>
@@ -145,7 +176,32 @@ export function AdminPermanentBookingsPage() {
                             {plan.discountType === 'fixed' ? `৳${plan.discountValue} Off` : `${plan.discountValue}% Off`}
                           </Badge>
                         ) : (
-                          <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>Standard Rate</span>
+                          <span style={{ color: 'var(--muted)', fontSize: '12px' }}>Standard Rate</span>
+                        )}
+                      </td>
+                      <td>
+                        {isPlanPaid ? (
+                          <div>
+                            <Badge tone="pitch" icon={<CheckCircle size={12} />}>
+                              Paid · {plan.paymentMethod || 'Full'}
+                            </Badge>
+                            {plan.totalAmount ? (
+                              <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+                                ৳{plan.totalAmount} ({plan.totalMatches || 13} matches)
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <div>
+                            <Badge tone="sun">
+                              Unpaid
+                            </Badge>
+                            {plan.totalAmount ? (
+                              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted)', marginTop: '2px' }}>
+                                Total: ৳{plan.totalAmount}
+                              </div>
+                            ) : null}
+                          </div>
                         )}
                       </td>
                       <td>
@@ -154,14 +210,28 @@ export function AdminPermanentBookingsPage() {
                         {plan.status === 'completed' && <Badge tone="sky">Completed</Badge>}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                          {!isPlanPaid && plan.status === 'active' && (
+                            <Button
+                              variant="cta"
+                              size="sm"
+                              iconLeft={<DollarSign size={13} />}
+                              onClick={() => {
+                                setPayingPlan(plan);
+                                setPayMethod('BKASH');
+                                setPayNotes('');
+                              }}
+                            >
+                              Mark Paid
+                            </Button>
+                          )}
                           <Button
                             variant="secondary"
                             size="sm"
                             iconLeft={<Tag size={12} />}
                             onClick={() => handleOpenDiscountModal(plan)}
                           >
-                            Set Discount
+                            Discount
                           </Button>
                           {plan.status === 'active' && (
                             <Button
@@ -228,6 +298,74 @@ export function AdminPermanentBookingsPage() {
                 </Button>
                 <Button type="submit" variant="primary" loading={discountMutation.isPending}>
                   Save Discount
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Mark Plan Paid Modal */}
+      {payingPlan && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 'var(--space-4)' }}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-xl)', padding: 'var(--space-6)', width: '100%', maxWidth: '440px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+              <h3 style={{ margin: 0, fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--ink)' }}>Confirm Full Plan Payment</h3>
+              <button type="button" onClick={() => setPayingPlan(null)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ background: 'var(--surface-2)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ color: 'var(--muted)' }}>Customer:</span>
+                <strong style={{ color: 'var(--ink)' }}>{typeof payingPlan.customerId === 'object' ? payingPlan.customerId.name : 'Customer'}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ color: 'var(--muted)' }}>Slot:</span>
+                <strong style={{ color: 'var(--ink)' }}>{DAY_NAMES[payingPlan.dayOfWeek]} ({formatTimeRange(payingPlan.startTime, payingPlan.endTime)})</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Total Commitment Amount:</span>
+                <strong style={{ color: 'var(--pitch)', fontSize: 'var(--text-base)' }}>৳{payingPlan.totalAmount || (payingPlan.commitmentMonths ? payingPlan.commitmentMonths * 4 * 750 : 'N/A')}</strong>
+              </div>
+            </div>
+
+            <form onSubmit={handleMarkPaidSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div>
+                <label className={styles.label}>
+                  Payment Method Received
+                </label>
+                <select
+                  className={styles.select}
+                  value={payMethod}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setPayMethod(e.target.value as PermanentPaymentMethod)}
+                >
+                  <option value="BKASH">bKash (Send-Money / Merchant Payment)</option>
+                  <option value="CASH">Cash (Received at Ground Counter)</option>
+                  <option value="BANK">Bank Transfer / POS Card</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={styles.label}>
+                  Reference / Transaction ID / Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. TrxID 9J4728... or Cash received at reception"
+                  className={styles.inputDate}
+                  value={payNotes}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setPayNotes(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)', marginTop: 'var(--space-4)' }}>
+                <Button type="button" variant="secondary" onClick={() => setPayingPlan(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="cta" loading={markPaidMutation.isPending}>
+                  Confirm Paid
                 </Button>
               </div>
             </form>

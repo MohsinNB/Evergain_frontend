@@ -16,6 +16,9 @@ export interface GroundSummary {
   location: string;
 }
 
+export type PermanentPaymentStatus = 'unpaid' | 'paid';
+export type PermanentPaymentMethod = 'CASH' | 'BKASH' | 'BANK';
+
 export interface PermanentBookingPlan {
   _id: string;
   customerId: CustomerSummary | string;
@@ -28,6 +31,12 @@ export interface PermanentBookingPlan {
   startDate: string;
   commitmentMonths: number;
   status: PermanentBookingStatus;
+  totalAmount?: number;
+  totalMatches?: number;
+  paymentStatus?: PermanentPaymentStatus;
+  paymentMethod?: PermanentPaymentMethod;
+  paymentNotes?: string;
+  paidAt?: string;
   createdAt: string;
 }
 
@@ -42,6 +51,11 @@ export interface CreatePermanentBookingInput {
 export interface UpdatePlanDiscountInput {
   discountType: PlanDiscountType;
   discountValue: number;
+}
+
+export interface MarkPlanPaidInput {
+  paymentMethod: PermanentPaymentMethod;
+  paymentNotes?: string;
 }
 
 /** Customer: Create a 3-month commitment permanent booking plan */
@@ -71,3 +85,10 @@ export async function updatePermanentBookingDiscount(id: string, input: UpdatePl
   const res = await api.patch(`/permanent-bookings/${id}/discount`, input);
   return res.data.data;
 }
+
+/** Admin: Mark full permanent plan as paid (Cash / bKash / Bank) */
+export async function markPermanentBookingPlanPaid(id: string, input: MarkPlanPaidInput): Promise<PermanentBookingPlan> {
+  const res = await api.patch(`/permanent-bookings/${id}/mark-paid`, input);
+  return res.data.data;
+}
+
