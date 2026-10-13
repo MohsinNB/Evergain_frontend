@@ -48,16 +48,29 @@ export function AdminAuditLogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.logs.map((log) => (
-                  <tr key={log._id}>
-                    <td>{formatDateLong(log.createdAt.slice(0, 10))} {log.createdAt.slice(11, 16)}</td>
-                    <td><strong>{log.actorName || log.actorId || 'System'}</strong></td>
-                    <td><Badge tone="neutral">{log.actorRole}</Badge></td>
-                    <td><code className={styles.actionCode}>{log.action}</code></td>
-                    <td><code className={styles.code}>{log.targetId || '-'}</code></td>
-                    <td>{log.ipAddress || '127.0.0.1'}</td>
-                  </tr>
-                ))}
+                {data.logs.map((log) => {
+                  const actorDisplay =
+                    log.actorName ||
+                    (typeof log.actorId === 'object' && log.actorId !== null
+                      ? log.actorId.name || log.actorId._id
+                      : typeof log.actorId === 'string'
+                      ? log.actorId
+                      : 'System');
+
+                  const logDate = log.createdAt ? log.createdAt.slice(0, 10) : '';
+                  const logTime = log.createdAt ? log.createdAt.slice(11, 16) : '';
+
+                  return (
+                    <tr key={log._id}>
+                      <td>{logDate ? `${formatDateLong(logDate)} ${logTime}` : '-'}</td>
+                      <td><strong>{actorDisplay}</strong></td>
+                      <td><Badge tone="neutral">{log.actorRole || 'system'}</Badge></td>
+                      <td><code className={styles.actionCode}>{log.action}</code></td>
+                      <td><code className={styles.code}>{log.targetId || '-'}</code></td>
+                      <td>{log.ipAddress || '127.0.0.1'}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

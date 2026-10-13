@@ -2,9 +2,17 @@ import { getData, api, type ApiResponse } from '@/lib/api';
 import type { AdminUser, AdminRole } from '../admin-auth/api';
 import type { CustomerUser } from '../customer-auth/api';
 
+export interface AuditActor {
+  _id: string;
+  name?: string;
+  phone?: string;
+  role?: string;
+  email?: string;
+}
+
 export interface AuditLogItem {
   _id: string;
-  actorId?: string;
+  actorId?: string | AuditActor;
   actorName?: string;
   actorRole: string;
   action: string;
