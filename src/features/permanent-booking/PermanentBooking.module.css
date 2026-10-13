@@ -131,9 +131,57 @@
 }
 
 .dayName {
-  font-size: var(--font-size-xs);
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.select,
+.inputDate {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: var(--text-base);
+  color-scheme: dark light;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select:focus,
+.inputDate:focus {
+  outline: none;
+  border-color: var(--pitch);
+  box-shadow: 0 0 0 2px var(--pitch-soft);
+}
+
+.select option {
+  background-color: var(--surface);
+  color: var(--ink);
+  padding: var(--space-2);
+}
+
+.groundBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  margin-bottom: var(--space-4);
 }
 
 .plansGrid {

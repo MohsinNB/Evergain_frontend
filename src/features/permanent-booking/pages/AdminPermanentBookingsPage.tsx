@@ -197,11 +197,11 @@ export function AdminPermanentBookingsPage() {
 
             <form onSubmit={handleDiscountSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                <label className={styles.label}>
                   Discount Type
                 </label>
                 <select
-                  style={{ width: '100%', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                  className={styles.select}
                   value={discountType}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) => setDiscountType(e.target.value as PlanDiscountType)}
                 >
@@ -211,12 +211,12 @@ export function AdminPermanentBookingsPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                <label className={styles.label}>
                   Discount Value ({discountType === 'fixed' ? '৳ Amount' : '% Percentage'})
                 </label>
                 <input
                   type="number"
-                  style={{ width: '100%', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                  className={styles.inputDate}
                   value={discountValue}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setDiscountValue(Number(e.target.value))}
                 />

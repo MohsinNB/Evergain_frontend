@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useMemo, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Calendar, Clock, ShieldCheck, Sparkles, AlertCircle, CheckCircle, XCircle, LogIn, PlusCircle } from 'lucide-react';
@@ -7,7 +7,7 @@ import { formatTimeRange } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card, Skeleton, EmptyState, Badge } from '@/components/ui/primitives';
 import { createPermanentBookingPlan, getMyPermanentBookings, cancelPermanentBookingPlan, type PermanentBookingPlan } from '../api';
-import { getGroundSettingsData } from '../../admin-management/api';
+import { getGrounds } from '../../public-slots/api';
 import styles from '../PermanentBooking.module.css';
 
 const DAYS_OF_WEEK = [
@@ -35,12 +35,59 @@ export function PermanentBookingPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Fetch ground details
-  const { data: grounds } = useQuery({
-    queryKey: ['ground-settings-public'],
-    queryFn: getGroundSettingsData,
+  // Fetch ground details (public endpoint)
+  const { data: grounds, isLoading: loadingGrounds } = useQuery({
+    queryKey: ['grounds'],
+    queryFn: getGrounds,
   });
   const ground = grounds?.[0];
+
+  // Dynamic slot generation from ground hours
+  const availableSlots = useMemo(() => {
+    if (!ground) {
+      return [
+        { start: '16:00', end: '17:00', label: '4:00 PM – 5:00 PM' },
+        { start: '17:00', end: '18:00', label: '5:00 PM – 6:00 PM' },
+        { start: '18:00', end: '19:00', label: '6:00 PM – 7:00 PM' },
+        { start: '19:00', end: '20:00', label: '7:00 PM – 8:00 PM' },
+        { start: '20:00', end: '21:00', label: '8:00 PM – 9:00 PM' },
+        { start: '21:00', end: '22:00', label: '9:00 PM – 10:00 PM' },
+        { start: '22:00', end: '23:00', label: '10:00 PM – 11:00 PM' },
+      ];
+    }
+    const [openH, openM] = ground.openingTime.split(':').map(Number);
+    const [closeH, closeM] = ground.closingTime.split(':').map(Number);
+    const dur = ground.slotDurationMinutes || 60;
+
+    const openMins = (openH ?? 0) * 60 + (openM ?? 0);
+    let closeMins = (closeH ?? 0) * 60 + (closeM ?? 0);
+    if (closeMins <= openMins) closeMins += 24 * 60;
+
+    const list: Array<{ start: string; end: string; label: string }> = [];
+    for (let m = openMins; m + dur <= closeMins; m += dur) {
+      const sH = Math.floor((m % (24 * 60)) / 60).toString().padStart(2, '0');
+      const sM = ((m % (24 * 60)) % 60).toString().padStart(2, '0');
+      const startStr = `${sH}:${sM}`;
+
+      const endTotal = m + dur;
+      const eH = Math.floor((endTotal % (24 * 60)) / 60).toString().padStart(2, '0');
+      const eM = ((endTotal % (24 * 60)) % 60).toString().padStart(2, '0');
+      const endStr = `${eH}:${eM}`;
+
+      list.push({
+        start: startStr,
+        end: endStr,
+        label: formatTimeRange(startStr, endStr),
+      });
+    }
+    return list;
+  }, [ground]);
+
+  useEffect(() => {
+    if (availableSlots.length > 0 && !availableSlots.some((s) => s.start === startTime)) {
+      setStartTime(availableSlots[0].start);
+    }
+  }, [availableSlots, startTime]);
 
   // Fetch my active permanent bookings if logged in
   const { data: myPlans, isLoading: loadingPlans } = useQuery({
@@ -75,7 +122,7 @@ export function PermanentBookingPage() {
       return;
     }
     if (!ground) {
-      setErrorMsg('Ground details not loaded');
+      setErrorMsg('Ground details are currently loading. Please try again.');
       return;
     }
 
@@ -130,14 +177,24 @@ export function PermanentBookingPage() {
       {/* Subscription Builder Card */}
       <Card className={styles.builderCard}>
         <h2 className={styles.sectionTitle}>
-          <PlusCircle size={22} style={{ color: 'var(--color-pitch-emerald)' }} /> Subscribe to Permanent Slot
+          <PlusCircle size={22} style={{ color: 'var(--pitch)' }} /> Subscribe to Permanent Slot
         </h2>
 
+        {/* Active Ground Badge */}
+        {ground && (
+          <div className={styles.groundBadge}>
+            <ShieldCheck size={16} style={{ color: 'var(--pitch)' }} />
+            <span>
+              Ground: <strong>{ground.name}</strong> ({ground.location})
+            </span>
+          </div>
+        )}
+
         {!customer && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-4)', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-4)', background: 'var(--sky-soft)', border: '1px solid var(--border)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>
             <div>
-              <strong style={{ display: 'block', color: 'var(--color-text-primary)' }}>Customer Registration Required</strong>
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+              <strong style={{ display: 'block', color: 'var(--ink)' }}>Customer Registration Required</strong>
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted)' }}>
                 Permanent bookings require a registered Customer account to manage weekly slots.
               </span>
             </div>
@@ -148,20 +205,20 @@ export function PermanentBookingPage() {
         )}
 
         {errorMsg && (
-          <div style={{ color: 'var(--color-accent-rose)', fontSize: 'var(--font-size-sm)', background: 'rgba(239,68,68,0.1)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ color: 'var(--berry)', fontSize: 'var(--text-sm)', background: 'var(--berry-soft)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertCircle size={18} /> {errorMsg}
           </div>
         )}
 
         {successMsg && (
-          <div style={{ color: 'var(--color-pitch-emerald)', fontSize: 'var(--font-size-sm)', background: 'rgba(16,185,129,0.1)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ color: 'var(--pitch)', fontSize: 'var(--text-sm)', background: 'var(--pitch-soft)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CheckCircle size={18} /> {successMsg}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* Day selection */}
-          <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
+          <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 700, marginBottom: 'var(--space-2)', color: 'var(--ink)' }}>
             Select Preferred Day of Week
           </label>
           <div className={styles.daysGrid}>
@@ -179,32 +236,31 @@ export function PermanentBookingPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
             <div>
-              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+              <label className={styles.label}>
                 Slot Start Time
               </label>
               <select
-                style={{ width: '100%', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                className={styles.select}
                 value={startTime}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) => setStartTime(e.target.value)}
               >
-                <option value="16:00">4:00 PM – 5:00 PM</option>
-                <option value="17:00">5:00 PM – 6:00 PM</option>
-                <option value="18:00">6:00 PM – 7:00 PM</option>
-                <option value="19:00">7:00 PM – 8:00 PM</option>
-                <option value="20:00">8:00 PM – 9:00 PM</option>
-                <option value="21:00">9:00 PM – 10:00 PM</option>
-                <option value="22:00">10:00 PM – 11:00 PM</option>
+                {availableSlots.map((slot) => (
+                  <option key={slot.start} value={slot.start}>
+                    {slot.label}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+              <label className={styles.label}>
                 Start Date (First Match)
               </label>
               <input
                 type="date"
-                style={{ width: '100%', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-primary)' }}
+                className={styles.inputDate}
                 value={startDate}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
               />
             </div>
@@ -215,10 +271,10 @@ export function PermanentBookingPage() {
             variant="cta"
             size="lg"
             block
-            disabled={!customer}
+            disabled={!customer || loadingGrounds || !ground}
             loading={createMutation.isPending}
           >
-            Submit 3-Month Permanent Plan Request
+            {loadingGrounds ? 'Loading Ground...' : 'Submit 3-Month Permanent Plan Request'}
           </Button>
         </form>
       </Card>
