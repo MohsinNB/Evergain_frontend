@@ -13,7 +13,7 @@ export function BookingSuccessPage() {
   const tranId = searchParams.get('tran_id') || '';
   const bookingId = searchParams.get('booking_id') || '';
 
-  const identifier = bookingId || tranId;
+  const identifier = tranId || bookingId;
 
   const { data: receipt, isLoading, error } = useQuery({
     queryKey: ['public-receipt', identifier],

@@ -20,15 +20,20 @@ api.interceptors.request.use((config) => {
 
   const url = config.url || '';
   const isAdminRoute =
-    url.includes('/admin') ||
-    url.includes('/ground') ||
+    url.startsWith('/admin') ||
+    url.includes('/admin/') ||
+    url.startsWith('/ground/settings') ||
+    url.includes('/ground/settings') ||
+    url === '/ground' ||
+    (url.startsWith('/ground') && !url.startsWith('/grounds')) ||
+    url.startsWith('/calendar') ||
     url.includes('/calendar') ||
+    url.startsWith('/analytics') ||
     url.includes('/analytics') ||
+    url.startsWith('/audit-logs') ||
     url.includes('/audit-logs');
 
-  const token = isAdminRoute
-    ? (adminToken || customerToken)
-    : (customerToken || adminToken);
+  const token = isAdminRoute ? adminToken : customerToken;
 
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
